@@ -321,7 +321,7 @@ a {
 
   .mobile-actions {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     position: fixed;
     bottom: 0;
     left: 0;
@@ -337,8 +337,13 @@ a {
     font-weight: 700;
   }
 
-  .mobile-actions .wa {
-    background: #22c55e;
+  .mobile-actions .tg {
+    background: #0ea5e9;
+    color: #fff;
+  }
+
+  .mobile-actions .max {
+    background: #7c3aed;
     color: #fff;
   }
 
