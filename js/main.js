@@ -60,7 +60,6 @@ function initLeadForm() {
   if (!leadForm) return;
 
 
-if (leadForm) {
   leadForm.addEventListener('submit', async (event) => {
 
     event.preventDefault();
