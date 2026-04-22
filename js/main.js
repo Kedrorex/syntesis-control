@@ -1,20 +1,68 @@
-document.querySelectorAll('a[href^="#"]').forEach((link) => {
-  link.addEventListener('click', (event) => {
-    const href = link.getAttribute('href');
-    if (!href || href === '#') return;
+async function injectSharedLayout() {
+  const headerMount = document.querySelector('[data-site-header]');
+  const footerMount = document.querySelector('[data-site-footer]');
 
-    const target = document.querySelector(href);
-    if (!target) return;
+  const tasks = [];
 
-    event.preventDefault();
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (headerMount) {
+    tasks.push(
+      fetch('includes/header.html')
+        .then((response) => response.ok ? response.text() : '')
+        .then((html) => {
+          if (!html) return;
+          headerMount.outerHTML = html;
+        })
+    );
+  }
+
+  if (footerMount) {
+    tasks.push(
+      fetch('includes/footer.html')
+        .then((response) => response.ok ? response.text() : '')
+        .then((html) => {
+          if (!html) return;
+          footerMount.outerHTML = html;
+        })
+    );
+  }
+
+  if (tasks.length) {
+    await Promise.all(tasks);
+  }
+
+  const currentPage = document.body?.dataset.page;
+  if (!currentPage) return;
+
+  document.querySelectorAll('[data-nav]').forEach((link) => {
+    if (link.getAttribute('data-nav') === currentPage) {
+      link.classList.add('active');
+    }
   });
-});
+}
 
-const leadForm = document.querySelector('[data-lead-form]');
+function initSmoothAnchors() {
+  document.querySelectorAll('a[href^="#"]').forEach((link) => {
+    link.addEventListener('click', (event) => {
+      const href = link.getAttribute('href');
+      if (!href || href === '#') return;
+
+      const target = document.querySelector(href);
+      if (!target) return;
+
+      event.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+}
+
+function initLeadForm() {
+  const leadForm = document.querySelector('[data-lead-form]');
+  if (!leadForm) return;
+
 
 if (leadForm) {
   leadForm.addEventListener('submit', async (event) => {
+
     event.preventDefault();
 
     const formData = new FormData(leadForm);
@@ -63,3 +111,9 @@ if (leadForm) {
     }
   });
 }
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await injectSharedLayout();
+  initSmoothAnchors();
+  initLeadForm();
+});
