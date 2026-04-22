@@ -59,13 +59,17 @@ function initLeadForm() {
   const leadForm = document.querySelector('[data-lead-form]');
   if (!leadForm) return;
 
-  leadForm.addEventListener('submit', (event) => {
+
+if (leadForm) {
+  leadForm.addEventListener('submit', async (event) => {
+
     event.preventDefault();
 
     const formData = new FormData(leadForm);
     const name = String(formData.get('name') || '').trim();
     const phone = String(formData.get('phone') || '').trim();
     const type = String(formData.get('type') || '').trim();
+    const comment = String(formData.get('comment') || '').trim();
     const note = leadForm.querySelector('.form-note');
 
     if (!name || !phone || !type) {
@@ -73,11 +77,38 @@ function initLeadForm() {
       return;
     }
 
-    if (note) {
-      note.textContent = 'Заявка принята. Мы свяжемся с вами в ближайшее время.';
-    }
+    const payload = new FormData();
+    payload.append('name', name);
+    payload.append('phone', phone);
+    payload.append('type', type);
+    payload.append('comment', comment || 'Без комментария');
+    payload.append('_subject', 'Новая заявка с сайта Синтез Контроль');
+    payload.append('_captcha', 'false');
+    payload.append('_template', 'table');
 
-    leadForm.reset();
+    try {
+      const response = await fetch('https://formsubmit.co/ajax/sales.s-c@bk.ru', {
+        method: 'POST',
+        body: payload,
+        headers: {
+          Accept: 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Ошибка отправки');
+      }
+
+      if (note) {
+        note.textContent = 'Заявка отправлена. Мы свяжемся с вами в ближайшее время.';
+      }
+
+      leadForm.reset();
+    } catch (error) {
+      if (note) {
+        note.textContent = 'Не удалось отправить заявку. Позвоните нам или напишите на sales.s-c@bk.ru.';
+      }
+    }
   });
 }
 
