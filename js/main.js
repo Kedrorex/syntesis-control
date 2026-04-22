@@ -55,14 +55,29 @@ function initSmoothAnchors() {
   });
 }
 
+function initServiceAccordions() {
+  const items = document.querySelectorAll('.service-accordion');
+  if (!items.length) return;
+
+  items.forEach((item) => {
+    item.addEventListener('toggle', () => {
+      if (!item.open) return;
+      items.forEach((other) => {
+        if (other !== item) other.open = false;
+      });
+    });
+  });
+}
+
 function initLeadForm() {
   const leadForm = document.querySelector('[data-lead-form]');
   if (!leadForm) return;
 
+  const endpoint = leadForm.getAttribute('data-form-endpoint') || 'https://formsubmit.co/ajax/sales.s-c@bk.ru';
+  const note = leadForm.querySelector('.form-note');
+  const submitButton = leadForm.querySelector('button[type="submit"]');
 
-if (leadForm) {
   leadForm.addEventListener('submit', async (event) => {
-
     event.preventDefault();
 
     const formData = new FormData(leadForm);
@@ -70,33 +85,31 @@ if (leadForm) {
     const phone = String(formData.get('phone') || '').trim();
     const type = String(formData.get('type') || '').trim();
     const comment = String(formData.get('comment') || '').trim();
-    const note = leadForm.querySelector('.form-note');
 
     if (!name || !phone || !type) {
       if (note) note.textContent = 'Пожалуйста, заполните имя, телефон и тип объекта.';
       return;
     }
 
-    const payload = new FormData();
-    payload.append('name', name);
-    payload.append('phone', phone);
-    payload.append('type', type);
-    payload.append('comment', comment || 'Без комментария');
-    payload.append('_subject', 'Новая заявка с сайта Синтез Контроль');
-    payload.append('_captcha', 'false');
-    payload.append('_template', 'table');
+    // если комментарий пуст — подставим значение по умолчанию
+    if (!comment) {
+      formData.set('comment', 'Без комментария');
+    }
+
+    if (submitButton) submitButton.disabled = true;
+    if (note) note.textContent = 'Отправляем заявку...';
 
     try {
-      const response = await fetch('https://formsubmit.co/ajax/sales.s-c@bk.ru', {
+      const response = await fetch(endpoint, {
         method: 'POST',
-        body: payload,
+        body: formData,
         headers: {
           Accept: 'application/json'
         }
       });
 
       if (!response.ok) {
-        throw new Error('Ошибка отправки');
+        throw new Error('request_failed');
       }
 
       if (note) {
@@ -108,6 +121,8 @@ if (leadForm) {
       if (note) {
         note.textContent = 'Не удалось отправить заявку. Позвоните нам или напишите на sales.s-c@bk.ru.';
       }
+    } finally {
+      if (submitButton) submitButton.disabled = false;
     }
   });
 }
@@ -115,5 +130,6 @@ if (leadForm) {
 document.addEventListener('DOMContentLoaded', async () => {
   await injectSharedLayout();
   initSmoothAnchors();
+  initServiceAccordions();
   initLeadForm();
 });
