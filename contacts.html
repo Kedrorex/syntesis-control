@@ -14,10 +14,24 @@
 <div data-site-header></div>
 <main>
 <section class="page-hero"><div class="container"><h1>Контакты</h1><p>Позвоните или оставьте заявку — обычно отвечаем в течение 10 минут в рабочее время.</p></div></section>
-<section class="section"><div class="container grid-2">
-<article class="contact-card"><h2>Как связаться</h2><p><strong>Адрес:</strong> Самара, ул. Ново-Садовая, 106 (уточните точный адрес офиса).</p><p><strong>Телефон:</strong> <a href="tel:+79270104288">+7 (927) 010-42-88</a></p><p><strong>Telegram:</strong> <a href="https://t.me/syntesiscontrol">@syntesiscontrol</a></p><p><strong>MAX:</strong> <a href="https://max.ru/">написать в MAX</a></p><p><strong>Email (общие вопросы):</strong> <a href="mailto:synthesiscontrol@bk.ru">synthesiscontrol@bk.ru</a></p><p><strong>Email (запрос КП):</strong> <a href="mailto:sales.s-c@bk.ru">sales.s-c@bk.ru</a></p><small>Форма может отправляться через Formspree или в Telegram-бота через PHP-скрипт.</small></article>
+<section class="section"><div class="container grid-2 contacts-layout">
+<article class="contact-card contact-card--highlight"><h2>Как связаться</h2><p><strong>Адрес:</strong> Самара, ул. Ново-Садовая, 106 (уточните точный адрес офиса).</p><p><strong>Телефон:</strong> <a href="tel:+79270104288">+7 (927) 010-42-88</a></p>
+<div class="social-grid">
+<a class="social-link social-link--telegram" href="https://t.me/syntesiscontrol" target="_blank" rel="noopener noreferrer" aria-label="Написать в Telegram">
+  <span class="social-link__icon">✈</span>
+  <span>Telegram</span>
+</a>
+<a class="social-link social-link--max" href="https://max.ru/" target="_blank" rel="noopener noreferrer" aria-label="Написать в MAX">
+  <span class="social-link__icon">M</span>
+  <span>MAX</span>
+</a>
+</div>
+<p><strong>Email (общие вопросы):</strong> <a href="mailto:synthesiscontrol@bk.ru">synthesiscontrol@bk.ru</a></p><p><strong>Email (запрос КП):</strong> <a href="mailto:sales.s-c@bk.ru">sales.s-c@bk.ru</a></p><small>Все заявки с формы автоматически отправляются на почту <strong>sales.s-c@bk.ru</strong>.</small></article>
 <article class="contact-card" id="lead-form"><h2>Заявка на расчёт стоимости</h2>
-<form class="form" data-lead-form>
+<form class="form" data-lead-form data-form-endpoint="https://formsubmit.co/ajax/sales.s-c@bk.ru">
+<input type="hidden" name="_subject" value="Новая заявка с сайта Синтез Контроль">
+<input type="hidden" name="_captcha" value="false">
+<input type="hidden" name="_template" value="table">
 <label>Имя
 <input type="text" name="name" required placeholder="Как к вам обращаться"></label>
 <label>Телефон
