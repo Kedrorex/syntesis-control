@@ -73,7 +73,7 @@ function initLeadForm() {
   const leadForm = document.querySelector('[data-lead-form]');
   if (!leadForm) return;
 
-  const endpoint = leadForm.getAttribute('data-form-endpoint');
+  const endpoint = leadForm.getAttribute('data-form-endpoint') || 'https://formsubmit.co/ajax/sales.s-c@bk.ru';
   const note = leadForm.querySelector('.form-note');
   const submitButton = leadForm.querySelector('button[type="submit"]');
 
@@ -84,15 +84,16 @@ function initLeadForm() {
     const name = String(formData.get('name') || '').trim();
     const phone = String(formData.get('phone') || '').trim();
     const type = String(formData.get('type') || '').trim();
+    const comment = String(formData.get('comment') || '').trim();
 
     if (!name || !phone || !type) {
       if (note) note.textContent = 'Пожалуйста, заполните имя, телефон и тип объекта.';
       return;
     }
 
-    if (!endpoint) {
-      if (note) note.textContent = 'Форма временно недоступна. Позвоните нам по телефону на странице контактов.';
-      return;
+    // если комментарий пуст — подставим значение по умолчанию
+    if (!comment) {
+      formData.set('comment', 'Без комментария');
     }
 
     if (submitButton) submitButton.disabled = true;
@@ -112,13 +113,13 @@ function initLeadForm() {
       }
 
       if (note) {
-        note.textContent = 'Заявка отправлена. Мы скоро свяжемся с вами.';
+        note.textContent = 'Заявка отправлена. Мы свяжемся с вами в ближайшее время.';
       }
 
       leadForm.reset();
     } catch (error) {
       if (note) {
-        note.textContent = 'Не удалось отправить форму. Напишите на sales.s-c@bk.ru или позвоните нам.';
+        note.textContent = 'Не удалось отправить заявку. Позвоните нам или напишите на sales.s-c@bk.ru.';
       }
     } finally {
       if (submitButton) submitButton.disabled = false;
