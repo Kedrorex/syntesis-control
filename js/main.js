@@ -55,34 +55,80 @@ function initSmoothAnchors() {
   });
 }
 
+function initServiceAccordions() {
+  const items = document.querySelectorAll('.service-accordion');
+  if (!items.length) return;
+
+  items.forEach((item) => {
+    item.addEventListener('toggle', () => {
+      if (!item.open) return;
+      items.forEach((other) => {
+        if (other !== item) other.open = false;
+      });
+    });
+  });
+}
+
 function initLeadForm() {
   const leadForm = document.querySelector('[data-lead-form]');
   if (!leadForm) return;
 
-  leadForm.addEventListener('submit', (event) => {
+  const endpoint = leadForm.getAttribute('data-form-endpoint');
+  const note = leadForm.querySelector('.form-note');
+  const submitButton = leadForm.querySelector('button[type="submit"]');
+
+  leadForm.addEventListener('submit', async (event) => {
     event.preventDefault();
 
     const formData = new FormData(leadForm);
     const name = String(formData.get('name') || '').trim();
     const phone = String(formData.get('phone') || '').trim();
     const type = String(formData.get('type') || '').trim();
-    const note = leadForm.querySelector('.form-note');
 
     if (!name || !phone || !type) {
       if (note) note.textContent = 'Пожалуйста, заполните имя, телефон и тип объекта.';
       return;
     }
 
-    if (note) {
-      note.textContent = 'Заявка принята. Мы свяжемся с вами в ближайшее время.';
+    if (!endpoint) {
+      if (note) note.textContent = 'Форма временно недоступна. Позвоните нам по телефону на странице контактов.';
+      return;
     }
 
-    leadForm.reset();
+    if (submitButton) submitButton.disabled = true;
+    if (note) note.textContent = 'Отправляем заявку...';
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          Accept: 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('request_failed');
+      }
+
+      if (note) {
+        note.textContent = 'Заявка отправлена. Мы скоро свяжемся с вами.';
+      }
+
+      leadForm.reset();
+    } catch (error) {
+      if (note) {
+        note.textContent = 'Не удалось отправить форму. Напишите на sales.s-c@bk.ru или позвоните нам.';
+      }
+    } finally {
+      if (submitButton) submitButton.disabled = false;
+    }
   });
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
   await injectSharedLayout();
   initSmoothAnchors();
+  initServiceAccordions();
   initLeadForm();
 });
