@@ -71,27 +71,35 @@ function initServiceAccordions() {
 
 function initLeadForm() {
   const leadForm = document.querySelector('[data-lead-form]');
+  console.log('Форма найдена:', !!leadForm);
+
   if (!leadForm) return;
 
-  const endpoint = leadForm.getAttribute('data-form-endpoint') || 'https://formsubmit.co/ajax/sales.s-c@bk.ru';
+  const endpoint = leadForm.getAttribute('data-form-endpoint') || 'https://formsubmit.co/ajax/b1b3062adeb8a1a28dabea9c3d4b23d1';
+  console.log('Endpoint:', endpoint);
+
   const note = leadForm.querySelector('.form-note');
   const submitButton = leadForm.querySelector('button[type="submit"]');
 
   leadForm.addEventListener('submit', async (event) => {
     event.preventDefault();
+    console.log('Отправка формы началась');
 
     const formData = new FormData(leadForm);
+
     const name = String(formData.get('name') || '').trim();
     const phone = String(formData.get('phone') || '').trim();
     const type = String(formData.get('type') || '').trim();
     const comment = String(formData.get('comment') || '').trim();
 
+    console.log('Данные формы:', { name, phone, type, comment });
+
     if (!name || !phone || !type) {
+      console.warn('Валидация не пройдена');
       if (note) note.textContent = 'Пожалуйста, заполните имя, телефон и тип объекта.';
       return;
     }
 
-    // если комментарий пуст — подставим значение по умолчанию
     if (!comment) {
       formData.set('comment', 'Без комментария');
     }
@@ -100,6 +108,8 @@ function initLeadForm() {
     if (note) note.textContent = 'Отправляем заявку...';
 
     try {
+      console.log('Отправляем запрос...');
+
       const response = await fetch(endpoint, {
         method: 'POST',
         body: formData,
@@ -107,6 +117,11 @@ function initLeadForm() {
           Accept: 'application/json'
         }
       });
+
+      console.log('Ответ сервера:', response);
+
+      const responseText = await response.text();
+      console.log('Тело ответа:', responseText);
 
       if (!response.ok) {
         throw new Error('request_failed');
@@ -116,13 +131,18 @@ function initLeadForm() {
         note.textContent = 'Заявка отправлена. Мы свяжемся с вами в ближайшее время.';
       }
 
+      console.log('Успешно отправлено');
       leadForm.reset();
+
     } catch (error) {
+      console.error('Ошибка при отправке:', error);
+
       if (note) {
         note.textContent = 'Не удалось отправить заявку. Позвоните нам или напишите на sales.s-c@bk.ru.';
       }
     } finally {
       if (submitButton) submitButton.disabled = false;
+      console.log('Завершение обработки формы');
     }
   });
 }
@@ -133,3 +153,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   initServiceAccordions();
   initLeadForm();
 });
+
+// document.getElementById('lead-form').addEventListener('submit', function(e) {
+//   e.preventDefault();
+
+//   const note = this.querySelector('.form-note');
+
+//   emailjs.sendForm(
+//     'YOUR_SERVICE_ID',
+//     'YOUR_TEMPLATE_ID',
+//     this
+//   ).then(() => {
+//     note.textContent = 'Заявка отправлена!';
+//     this.reset();
+//   }, (error) => {
+//     note.textContent = 'Ошибка отправки';
+//     console.error(error);
+//   });
+// });
